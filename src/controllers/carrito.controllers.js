@@ -3,6 +3,15 @@ import ProductosDaos from "../models/daos/productos.daos.js";
 
 
 const Dao = new CarritoDaos()
+export async function elimarCarrito ( req, res ) {
+    try {
+        const eliminarproductos = await Dao.deleteAll()
+        const lista = await Dao.getAll() 
+        return res.render('carrito.hbs', {eliminarproductos})
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 export async function ProductosCarrito (req, res){
     try {

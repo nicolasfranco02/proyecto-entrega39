@@ -72,6 +72,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 /*========================[Rutas]============================*/
+app.get('/', (req, res)=>{
+    res.redirect('/productos');
+});
 
 app.use('/api', routerSesion);
 
@@ -80,13 +83,11 @@ app.use('/productos', routerProductos );
 app.use('/api', routerCArrito );
 
 
-app.get('/', (req, res)=>{
-    res.redirect('/productos');
-});
 
-app.get('/healthcheck', (req, res)=>{
-    res.send('Server ok!!!!')
-});
+app.get('*', (req, res)=>{
+    res.send('error')
+})
+
 
 //app.use('/productos', routerProductos)
 

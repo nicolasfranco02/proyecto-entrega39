@@ -23,8 +23,8 @@ export async function guardarProductos (req, res){
         }
     
     await DAOS.save(ingresarProductos)
-    //const listaDeProductos = await DAOS.getAll()
-   // return res.render('vistas', {listaDeProductos})
+    const listaDeProductos = await DAOS.getAll()
+   return res.render('vistas', {listaDeProductos})
     } catch (error) {
         console.log(error);
         
