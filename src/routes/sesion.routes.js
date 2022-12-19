@@ -1,4 +1,4 @@
-import { Router } from "express";
+/*import { Router } from "express";
 import { guardarUsuarios, loginUsuario } from "../controllers/sesion.controllers.js";
 
 const routerSesion = Router();
@@ -31,4 +31,4 @@ routerSesion.get('/logout', (req, res)=> {
     
 
 
-export default routerSesion;
+export default routerSesion;*/

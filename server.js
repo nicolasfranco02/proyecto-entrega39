@@ -5,13 +5,16 @@ import path from 'path';
 import { config } from "./src/config/config.js";
 import connectMongo from 'connect-mongo';
 import session from 'express-session';
-import mongoose from 'mongoose';
 import routerProductos from "./src/routes/productos.routes.js";
 import { allowInsecurePrototypeAccess } from "@handlebars/allow-prototype-access";
 import routerCArrito from "./src/routes/carrito.routes.js";
 import Handlebars from 'handlebars'
-import routerSesion from "./src/routes/sesion.routes.js";
+
 import passport from 'passport';
+import cors from "cors"
+import {Strategy} from 'passport-local';
+import RegistroDaos from './src/models/daos/registro.daos.js';
+import bcrypt from 'bcrypt';
 
 
 
@@ -19,7 +22,8 @@ const app = express();
 
 /*------mongoatlas------*/
 const MongoSTore= connectMongo.create({
-    mongoUrl: process.env.MONGOATLAS ,
+   // mongoUrl: config.mongoatlas.url,
+   mongoUrl:'mongodb+srv://nicolas:Radiohead02@cluster0.onm9rr1.mongodb.net/?retryWrites=true&w=majority',
     ttl:600000,
     mongoOptions: {
 
@@ -36,22 +40,65 @@ app.use(session({
         maxAge:60
     }
 })) 
+/*-----------cors---------------*/
 
-/*------------ mongo-----------*/
-const strConn = process.env.MONGOATLAS
-async function MongoBaseDatos (){
-    try{  
-        mongoose.connect(strConn);
-        console.log( `conectados en mongo`)
-
-
-    }
-    catch(error){
-        console.log(error)
-    }
-    
+if(config.server.NODE_ENV == 'development') {
+    app.use(cors())
+} else {
+    app.use(cors({
+        origin: 'http://localhost:8000',
+        secret: process.env.SECRET_KEY,
+        optionsSuccessStatus: 200,
+        methods: "GET, PUT, POST"
+    }));
 }
- MongoBaseDatos()
+
+/*------------ passport/ session-----------*/
+const DAOS_USER = new RegistroDaos()
+
+
+export async function loginUsuario (req, res){
+const  LocalStrategy = Strategy;
+
+passport.use (new LocalStrategy(
+    async function(username , password, done){
+        const usuarioCreado = await DAOS_USER.find(usuario => usuario.nombre = username  );
+        if (!usuarioCreado){
+            return done(null, false);
+        }else {
+            const match = await verifyPass(usuarioCreado, password);
+            if(!match){
+                return done(null, false);
+            }
+            return done (null ,  usuarioCreado);
+        }
+    }
+))
+
+
+
+passport.serializeUser((usuario , done) => {
+    done( null, usuario.nombre)
+})
+passport.deserializeUser((nombre, done) => {
+    const usuarioCreado = DAOS_USER.find(usuario => usuario.nombre == nombre);
+    done (null ,usuarioCreado);
+});
+
+
+
+ return  passport.authenticate('local', {successRedirect:'/productos', failureMessage:'/login'})
+}
+
+async function generateHashPassword(password){
+    const hashPassword = await bcrypt.hash(password, 10);
+    return hashPassword;
+}
+async function verifyPass(usuario, password) {
+    const match = await bcrypt.compare(password, usuario.password);
+    return match;
+}
+
 /*----------- Motor de plantillas -----------*/
 
 
@@ -76,14 +123,61 @@ app.get('/', (req, res)=>{
     res.redirect('/productos');
 });
 
-app.use('/api', routerSesion);
+//app.use('/api', routerSesion);
 
 app.use('/productos', routerProductos );
 
 app.use('/api', routerCArrito );
 
+/*---------------sesiones -----------*/
+app.get('/register', (req, res )=>{
+    const {url , method} = req
+    const usuario = req.body.nombre
+  //  logger.info(` direccion:${url} method: ${method}`)
+    res.render( 'formularioinicio.hbs', {usuario} )
+})
 
 
+app.post('/register',async (req, res )=>{
+    const {url , method} = req
+//logger.info(` direccion:${url} method: ${method}`)
+
+  const {nombre , password} = req.body;
+  const usuario = req.body.nombre
+
+
+  const nuevoUsuario = DAOS_USER.find(usuario => usuario.nombre == nombre);
+ // console.log(nuevoUsuario)
+  if (nuevoUsuario){
+    res.redirect('/register-error')
+  }else {
+    DAOS_USER.save({
+        nombre,
+        password: await generateHashPassword(password)
+    })
+    res.redirect('/login')
+  }
+})
+
+app.get('/register-error', (req, res) => {
+    const {url , method} = req
+//logger.info(` direccion:${url} method: ${method}`)
+res.render('errorsesion.hbs')
+})
+
+
+app.get('/login', (req, res )=>{
+    const {url , method} = req
+    //logger.info(` direccion:${url} method: ${method}`)
+    res.render( 'login.hbs'  )
+})
+app.post('/login', passport.authenticate('local', {successRedirect:'/inicio', failureMessage:'/login'}))
+
+app.get('/login-error', (req, res) => {
+        res.render('errorsesion.hbs');
+    })
+    
+/*-------------------fin --------------*/
 app.get('*', (req, res)=>{
     res.send('error')
 })
@@ -92,7 +186,12 @@ app.get('*', (req, res)=>{
 //app.use('/productos', routerProductos)
 
 /*============================[Servidor]============================*/
+
+
+const usuario = process.env.PORT
+console.log( "puerto" , usuario)
 const PORT = config.server.PORT;
+
 const server = app.listen(PORT, ()=>{
     console.log(`Servidor [${config.server.NODE_ENV}] en puerto ${PORT}`);
 })

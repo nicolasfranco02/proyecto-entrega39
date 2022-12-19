@@ -1,4 +1,4 @@
-
+/*
 import passport from 'passport';
 import {Strategy} from "passport-local";
 import RegistroDaos from "../models/daos/registro.daos.js";
@@ -71,3 +71,4 @@ export async function guardarUsuarios (req, res ){
         console.error(error);
     }
 }
+*/

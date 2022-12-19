@@ -1,15 +1,17 @@
-import CarritoDaos from "../models/daos/carrito.daos.js";
-import ProductosDaos from "../models/daos/productos.daos.js";
+import CarritoFactory from "../classes/carritoFactory.class.js";
+
+import CustomError from "../classes/CustomError.class.js"
+
+const Dao = CarritoFactory.get();
 
 
-const Dao = new CarritoDaos()
 export async function elimarCarrito ( req, res ) {
     try {
         const eliminarproductos = await Dao.deleteAll()
         const lista = await Dao.getAll() 
         return res.render('carrito.hbs', {eliminarproductos})
     } catch (error) {
-        console.log(error);
+        throw new CustomError(500, 'Error al eliminar el carrito', error);
     }
 }
 
@@ -19,7 +21,7 @@ export async function ProductosCarrito (req, res){
         //console.log(listaDeCarrito)
         return  res.render('carrito.hbs',{listaDeCarrito})
     } catch (error) {
-        console.log(error)
+        throw new CustomError(500, 'no se puede mostrar la lista', error);
     }
 }
 
@@ -41,6 +43,6 @@ export async function agregarAlCarrito( req, res ) {
        // return res.render( {productonuevo})
 
     } catch (error) {
-        console.log(error)
+        throw new CustomError(500, 'no se pudo agregar al carrito', error);
     }
 }

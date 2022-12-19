@@ -1,15 +1,20 @@
-import mongoose, { model } from 'mongoose'
+import mongoose  from 'mongoose'
+import atlasClient from '../../classes/atlasClient.class.js'
+import contenedor from '../../classes/contenedor.class.js'
 
 
+await (new atlasClient()).connect();
 
-export class ContenedorMongo {
+class ContenedorMongo extends contenedor {
 
-    /*constructor(nombreColeccion, esquema) {
-        this.coleccion = mongoose.model(nombreColeccion, esquema)
-    }*/
-   constructor (modelo){
+constructor (modelo){
+    super();
     this.coleccion = modelo
-   } 
+    //constructor(nombreColeccion, esquema) {
+      //  this.coleccion = mongoose.model(nombreColeccion, esquema)
+    }
+   
+   
 
     async getByid(id) {
         return this.coleccion.find({_id: id})
@@ -38,5 +43,5 @@ export class ContenedorMongo {
         return this.coleccion.deleteMany({})
     }
 }
- 
+
 export default ContenedorMongo;

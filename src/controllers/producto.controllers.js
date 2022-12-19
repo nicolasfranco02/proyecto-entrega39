@@ -1,6 +1,8 @@
+import ProductosFactory from "../classes/productosFactory.class.js";
 import ProductosDaos from "../models/daos/productos.daos.js";
+import CustomError from "../classes/CustomError.class.js"
 
-const DAOS = new ProductosDaos()
+const DAOS = ProductosFactory.get();
 
 
 export async function obtenerProductos (req, res){
@@ -8,7 +10,7 @@ export async function obtenerProductos (req, res){
         const listaDeProductos = await DAOS.getAll()
         return res.render('vistas' ,{listaDeProductos})
     } catch (error) {
-        console.log(error);
+        throw new CustomError(500, 'no se pudo obtener los productos', error);
         
     }
 }
@@ -26,7 +28,6 @@ export async function guardarProductos (req, res){
     const listaDeProductos = await DAOS.getAll()
    return res.render('vistas', {listaDeProductos})
     } catch (error) {
-        console.log(error);
-        
+        throw new CustomError(500, 'no se pudo guardar el productos', error);
     }
 }
