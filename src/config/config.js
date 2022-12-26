@@ -12,9 +12,9 @@ console.log("hola", process.env.PORT , "chau", process.cwd())
 
 export const config = {
     server:{
-        PORT: process.env.PORT ,
-        NODE_ENV: process.env.NODE_ENV  ,
-        PERS: process.env.PERS  
+        PORT: process.env.PORT ||3000  ,
+        NODE_ENV: process.env.NODE_ENV || 'development ' ,
+        PERS: process.env.PERS || false
     },
     FileSystem:{
         path: path.resolve(process.cwd(), 'DB')

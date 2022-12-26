@@ -32,6 +32,7 @@ actualizar(obj) {
     }
 }
 
+
   
 
     getById(id){
