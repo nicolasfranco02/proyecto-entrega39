@@ -60,6 +60,24 @@ deleteAll(){
  this.ruta= []
 
 }
+
+saveToFileCb(cb) {
+    let fileContents = ''
+    this.todos.forEach(todo => {
+        fileContents += `${todo.title},${todo.complete}`
+    })
+    fs.writeFile('todos.txt', fileContents, cb)
+}
+
+saveToFilePromise() {
+    let fileContents = ''
+    this.todos.forEach(todo => {
+        fileContents += `${todo.title},${todo.complete}`
+    })
+
+    return fs.promises.writeFile('todos.txt', fileContents)
+}
+
 }
 
 export default ContenedorMemoria ;

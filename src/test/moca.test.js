@@ -32,7 +32,7 @@ describe("Test de integración de tareas", function () {
         todos.save("run code")
         todos.save("otra tarea")
 
-        todos.complete("run code")
+        todos.actualizar("run code")
         assert.deepStrictEqual(todos.getAll(), [
             { title: 'run code', complete: true },
             { title: 'otra tarea', complete: false }
@@ -48,7 +48,7 @@ describe("comprobar error en completar tarea inexistente", function () {
 
         const errorEsperado = new Error('No hay tareas')
         assert.throws(() => {
-            todos.complete('una tareas más')
+            todos.actualizar('una tareas más')
         }, errorEsperado)
     })
 
@@ -58,7 +58,7 @@ describe("comprobar error en completar tarea inexistente", function () {
 
         const errorEsperado = new Error('Tarea no encontrada')
         assert.throws(() => {
-            todos.complete('una tareas más')
+            todos.actualizar('una tareas más')
         }, errorEsperado)
     })
 })

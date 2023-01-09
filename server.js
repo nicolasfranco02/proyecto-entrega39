@@ -16,6 +16,10 @@ import {Strategy} from 'passport-local';
 import RegistroDaos from './src/models/daos/registro.daos.js';
 import bcrypt from 'bcrypt';
 
+import ecommerceSchema from "./src/graphql/schema.js";
+import { guardarProductos, obtenerProductos } from "./src/controllers/producto.controllers.js";
+import { graphqlHTTP } from "express-graphql";
+
 
 
 const app = express();
@@ -177,6 +181,18 @@ app.get('/login-error', (req, res) => {
         res.render('errorsesion.hbs');
     })
     
+    app.use('/api/graphql', graphqlHTTP({
+        schema: ecommerceSchema,
+        rootValue: {
+            obtenerProductos: obtenerProductos
+           
+
+        },
+        graphiql: true,
+    }));
+    
+       
+
 /*-------------------fin --------------*/
 app.get('*', (req, res)=>{
     res.send('error')
